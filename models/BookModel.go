@@ -930,6 +930,12 @@ func (book *Book) ImportBook(zipPath string) error {
 	return err
 }
 
+//导入showDoc的文档
+func (book *Book) ImportBookFromShowDoc(zipPath string) error {
+
+	return nil
+}
+
 func (book *Book) FindForRoleId(bookId, memberId int) (conf.BookRole, error) {
 	o := orm.NewOrm()
 

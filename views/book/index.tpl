@@ -247,6 +247,19 @@
                             <div class="clearfix"></div>
                         </div>
                         <div class="form-group">
+                            <div class="col-lg-6">
+                                <label>
+                                    <input type="radio" name="zip_from" value="0" checked> 普通
+                                </label>
+                            </div>
+                            <div class="col-lg-6">
+                                <label>
+                                    <input type="radio" name="zip_from" value="1"> showDoc
+                                </label>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="form-group">
                             <div class="file-loading">
                                 <input id="import-book-upload" name="import-file" type="file" accept=".zip">
                             </div>

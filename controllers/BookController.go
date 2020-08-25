@@ -577,11 +577,11 @@ func (c *BookController) Import() {
 	}
 
 	defer file.Close()
-
 	bookName := strings.TrimSpace(c.GetString("book_name"))
 	identify := strings.TrimSpace(c.GetString("identify"))
 	description := strings.TrimSpace(c.GetString("description", ""))
 	privatelyOwned, _ := strconv.Atoi(c.GetString("privately_owned"))
+	zipFrom, _ := strconv.Atoi(c.GetString("zip_from"))
 	itemId, _ := c.GetInt("itemId")
 
 	if bookName == "" {
@@ -620,30 +620,32 @@ func (c *BookController) Import() {
 	tempPath = filepath.Join(tempPath, moreFile.Filename)
 
 	err = c.SaveToFile("import-file", tempPath)
+	if zipFrom == 1 {
+		book := models.NewBook()
 
-	book := models.NewBook()
+		book.MemberId = c.Member.MemberId
+		book.Cover = conf.GetDefaultCover()
+		book.BookName = bookName
+		book.Description = description
+		book.CommentCount = 0
+		book.PrivatelyOwned = privatelyOwned
+		book.CommentStatus = "closed"
+		book.Identify = identify
+		book.DocCount = 0
+		book.MemberId = c.Member.MemberId
+		book.CommentCount = 0
+		book.Version = time.Now().Unix()
+		book.ItemId = itemId
 
-	book.MemberId = c.Member.MemberId
-	book.Cover = conf.GetDefaultCover()
-	book.BookName = bookName
-	book.Description = description
-	book.CommentCount = 0
-	book.PrivatelyOwned = privatelyOwned
-	book.CommentStatus = "closed"
-	book.Identify = identify
-	book.DocCount = 0
-	book.MemberId = c.Member.MemberId
-	book.CommentCount = 0
-	book.Version = time.Now().Unix()
-	book.ItemId = itemId
+		book.Editor = "markdown"
+		book.Theme = "default"
 
-	book.Editor = "markdown"
-	book.Theme = "default"
+		go book.ImportBook(tempPath)
 
-	go book.ImportBook(tempPath)
+		beego.Info("用户[", c.Member.Account, "]导入了项目 ->", book)
+	} else { // 导入showDoc
 
-	beego.Info("用户[", c.Member.Account, "]导入了项目 ->", book)
-
+	}
 	c.JsonResult(0, "项目正在后台转换中，请稍后查看")
 }
 
@@ -771,7 +773,7 @@ func (c *BookController) SaveSort() {
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil || book == nil {
-			c.JsonResult(6001,"项目不存在")
+			c.JsonResult(6001, "项目不存在")
 			return
 		}
 		bookId = book.BookId
